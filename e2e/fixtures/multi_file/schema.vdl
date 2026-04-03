@@ -1,0 +1,45 @@
+// Main entry point with inlined shared types
+
+""" User type documentation loaded from external file. """
+type User {
+  id string
+  name string
+  email string
+  status Status
+}
+
+type Pagination {
+  page int
+  limit int
+}
+
+enum Status {
+  Active
+  Inactive
+}
+
+@rpc
+type UserService {
+  @proc
+  getUser {
+    input {
+      id string
+    }
+
+    output {
+      user User
+    }
+  }
+
+  @proc
+  listUsers {
+    input {
+      ...Pagination
+    }
+
+    output {
+      users User[]
+      total int
+    }
+  }
+}

@@ -1,0 +1,39 @@
+// Tests all primitive types and a basic custom type
+
+type User {
+  id string
+  name string
+  age int
+  score float
+  isActive bool
+  createdAt datetime
+}
+
+@rpc
+type Service {
+  @proc
+  getUser {
+    input {
+      id string
+    }
+
+    output {
+      user User
+    }
+  }
+
+  @proc
+  createUser {
+    input {
+      name string
+      age int
+      score float
+      isActive bool
+    }
+
+    output {
+      id string
+      createdAt datetime
+    }
+  }
+}

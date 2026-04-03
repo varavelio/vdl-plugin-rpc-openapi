@@ -1,0 +1,14 @@
+const config = {
+  version 1
+  plugins [
+    {
+      src "../../../dist/index.js"
+      schema "./schema.vdl"
+      outDir "./gen"
+      options {
+        title "Deprecated API"
+        version "2.0.0"
+      }
+    }
+  ]
+}

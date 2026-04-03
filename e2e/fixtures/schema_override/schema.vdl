@@ -1,0 +1,5 @@
+@rpc
+type Service {
+  @proc
+  ping {}
+}

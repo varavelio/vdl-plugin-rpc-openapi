@@ -1,0 +1,15 @@
+const config = {
+  version 1
+  plugins [
+    {
+      src "../../../dist/index.js"
+      schema "./schema.vdl"
+      outDir "./gen"
+      options {
+        outFile "openapi.yml"
+        title "YML Format API"
+        version "1.0.0"
+      }
+    }
+  ]
+}

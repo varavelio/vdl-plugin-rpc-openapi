@@ -1,0 +1,51 @@
+// Tests deprecated annotations
+
+@deprecated("Use UserV2 instead")
+type User {
+  id string
+  name string
+}
+
+type UserV2 {
+  id string
+  displayName string
+  email string
+}
+
+@rpc
+type UserService {
+  @deprecated("Use GetUserV2 instead")
+  @proc
+  getUser {
+    input {
+      id string
+    }
+
+    output {
+      user User
+    }
+  }
+
+  @proc
+  getUserV2 {
+    input {
+      id string
+    }
+
+    output {
+      user UserV2
+    }
+  }
+
+  @deprecated("Will be removed in v3.0")
+  @proc
+  deleteUser {
+    input {
+      id string
+    }
+
+    output {
+      deleted bool
+    }
+  }
+}
