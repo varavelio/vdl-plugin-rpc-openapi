@@ -20,4 +20,5 @@ When updating this document, do so with the context of the entire document in mi
 
 - Keep implementations aligned with SDK patterns from the manual.
 - Use the SDK utility functions when possible to avoid duplicating code.
-- `e2e/` this directory contains end to end tests. Recommended structure: one fixture folder per test.
+- `e2e/` this directory contains end to end tests. Keep permanent fixtures under `e2e/fixtures`, with one folder per case containing only `vdl.config.vdl`, `schema.vdl`, and the expected OpenAPI document (.json, .yaml or .yml).
+- The OpenAPI plugin is split into focused stages (`options`, `rpc-model`, `spec-builder`, `generate`) to keep generation behavior explicit and testable.
