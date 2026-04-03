@@ -3754,9 +3754,7 @@ function buildOpenApiSpec(ir, rpcGroups, options) {
     spec.tags = tags;
   }
   const paths = buildPaths(rpcGroups);
-  if (Object.keys(paths).length > 0) {
-    spec.paths = paths;
-  }
+  spec.paths = paths;
   spec.components = buildComponents(ir, rpcGroups);
   return spec;
 }
