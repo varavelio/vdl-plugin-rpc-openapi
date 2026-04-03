@@ -140,7 +140,20 @@ describe("generateTypeSchema and generateEnumSchema", () => {
     );
 
     expect(typeSchema.deprecated).toBe(true);
-    expect(typeSchema.description).toContain("Deprecated: Use NewType");
+    expect(typeSchema.description).toBe("Deprecated: Use NewType");
+  });
+
+  it("keeps deprecated text on a new paragraph when a description already exists", () => {
+    const typeSchema = generateTypeSchema(
+      typeDef("Legacy", objectType([field("id", primitiveType("string"))]), {
+        doc: "Legacy payload.",
+        annotations: [annotation("deprecated", stringLiteral("Use NewType"))],
+      }),
+    );
+
+    expect(typeSchema.description).toBe(
+      "Legacy payload.\n\nDeprecated: Use NewType",
+    );
   });
 
   it("supports both string and integer enums", () => {
@@ -210,6 +223,22 @@ describe("buildOpenApiSpec", () => {
     });
 
     expect(spec.servers).toEqual([{ url: "https://api.example.com" }]);
+    expect(spec.paths).toMatchObject({
+      "/Chat/messages": {
+        post: {
+          requestBody: {
+            $ref: "#/components/requestBodies/ChatMessagesInput",
+          },
+        },
+      },
+      "/Users/get": {
+        post: {
+          requestBody: {
+            $ref: "#/components/requestBodies/UsersGetInput",
+          },
+        },
+      },
+    });
     expect(spec.tags).toEqual([
       {
         name: "ChatStreams",

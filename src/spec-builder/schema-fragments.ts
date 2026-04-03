@@ -38,7 +38,7 @@ export function generateTypeSchema(typeDef: TypeDef): Record<string, unknown> {
       const currentDescription = String(schema.description ?? "");
       schema.description =
         currentDescription === ""
-          ? `\nDeprecated: ${deprecatedMessage}`
+          ? `Deprecated: ${deprecatedMessage}`
           : `${currentDescription}\n\nDeprecated: ${deprecatedMessage}`;
     }
   }
