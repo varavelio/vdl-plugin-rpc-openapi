@@ -2,6 +2,8 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parse as parseYaml } from "@varavel/vdl-plugin-sdk/utils/yaml";
+import OpenAPISchemaValidator from "openapi-schema-validator";
+import type { OpenAPI } from "openapi-types";
 import { beforeAll, describe, expect, it } from "vitest";
 
 // These tests exercise the built plugin through the real VDL CLI so every
@@ -9,6 +11,7 @@ import { beforeAll, describe, expect, it } from "vitest";
 const repoRoot = resolve(__dirname, "..");
 const fixturesDir = resolve(repoRoot, "e2e/fixtures");
 const localVdlBin = resolve(repoRoot, "node_modules/.bin/vdl");
+const openApiValidator = new OpenAPISchemaValidator({ version: 3 });
 
 // Each fixture folder is a complete VDL project with a schema, plugin config,
 // and one golden file describing the expected OpenAPI document.
@@ -57,12 +60,18 @@ describe("VDL Plugin OpenAPI e2e fixtures", () => {
 
       const generatedPath = findGeneratedFile(fixtureDir);
       const expectedPath = join(fixtureDir, expectedFileName);
+      const generatedDocument = parseByExtension(generatedPath);
+      const validationResult = openApiValidator.validate(
+        generatedDocument as OpenAPI.Document,
+      );
+
+      // Golden files assert behavior. Schema validation asserts that behavior is
+      // still a valid OpenAPI document according to the 3.0 schema.
+      expect(validationResult.errors).toEqual([]);
 
       // Compare parsed documents so formatting differences do not hide real
       // regressions in the generated OpenAPI structure.
-      expect(parseByExtension(generatedPath)).toEqual(
-        parseByExtension(expectedPath),
-      );
+      expect(generatedDocument).toEqual(parseByExtension(expectedPath));
     } finally {
       // Generated output is disposable and must never become fixture input.
       rmSync(join(fixtureDir, "gen"), { recursive: true, force: true });
@@ -120,13 +129,13 @@ function findGeneratedFile(fixtureDir: string): string {
   return join(generatedDir, firstGeneratedFile);
 }
 
-function parseByExtension(path: string): unknown {
+function parseByExtension(path: string): Record<string, unknown> {
   const content = readFileSync(path, "utf-8");
 
   if (path.endsWith(".json")) {
-    return JSON.parse(content);
+    return JSON.parse(content) as Record<string, unknown>;
   }
 
   // YAML comparison is structural for both `.yaml` and `.yml` outputs.
-  return parseYaml(content);
+  return parseYaml<Record<string, unknown>>(content);
 }
