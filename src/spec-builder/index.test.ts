@@ -255,7 +255,7 @@ describe("buildOpenApiSpec", () => {
     const spec = buildOpenApiSpec(schema(), [], baseOptions);
 
     expect(spec.tags).toBeUndefined();
-    expect(spec.paths).toBeUndefined();
+    expect(spec.paths).toEqual({});
     expect(spec.components).toBeDefined();
   });
 
