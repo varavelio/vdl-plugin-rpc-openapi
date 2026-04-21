@@ -12,6 +12,15 @@
   Generate OpenAPI 3.0 specifications for <strong>VDL RPC</strong> <strong>procedures</strong> and <strong>streams</strong>.
 </p>
 
+<p align="center">
+  <a href="https://varavel.com">
+    <img src="https://cdn.jsdelivr.net/gh/varavelio/brand@1.0.0/dist/badges/project.svg" alt="A Varavel project"/>
+  </a>
+  <a href="https://varavel.com/vdl">
+    <img src="https://cdn.jsdelivr.net/gh/varavelio/brand@1.0.0/dist/badges/vdl-plugin.svg" alt="VDL Plugin"/>
+  </a>
+</p>
+
 This plugin converts your VDL RPC schema into an OpenAPI document that can be used by API gateways, API clients (e.g. Postman), documentation tooling, contract validation workflows, and code generation pipelines.
 
 It is RPC-focused.
