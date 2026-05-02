@@ -12,6 +12,7 @@ temp/
 logs
 *.log
 npm-debug.log*
+*.tsbuildinfo
 
 # Coverage
 coverage
