@@ -1,6 +1,7 @@
 import { fail } from "@varavel/vdl-plugin-sdk";
 import { getOptionString } from "@varavel/vdl-plugin-sdk/utils/options";
 import { extname } from "@varavel/vdl-plugin-sdk/utils/paths";
+import { trim } from "@varavel/vdl-plugin-sdk/utils/strings";
 
 const DEFAULT_OUT_FILE = "openapi.yaml";
 const DEFAULT_TITLE = "VDL RPC API";
@@ -11,6 +12,7 @@ type OutFormat = "yaml" | "json";
 export type PluginOptions = {
   outFile: string;
   outFormat: OutFormat;
+  playgroundFile?: string;
   title: string;
   version: string;
   description?: string;
@@ -28,12 +30,14 @@ export function resolvePluginOptions(
 ): PluginOptions {
   const outFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
   const outFormat = resolveOutFormat(outFile);
+  const playgroundFile = resolvePlaygroundFile(options);
   const title = requiredStrOption(options, "title", DEFAULT_TITLE);
   const version = requiredStrOption(options, "version", DEFAULT_VERSION);
 
   return {
     outFile,
     outFormat,
+    playgroundFile,
     title,
     version,
     description: optionalStrOption(options, "description"),
@@ -53,6 +57,26 @@ function resolveOutFormat(outFile: string): OutFormat {
 
   fail(
     `Option "outFile" must end with .yaml, .yml, or .json. Received: ${JSON.stringify(outFile)}.`,
+  );
+}
+
+function resolvePlaygroundFile(
+  options: Record<string, string>,
+): string | undefined {
+  const playgroundFile = trim(
+    optionalStrOption(options, "playgroundFile") ?? "",
+  );
+
+  if (!playgroundFile) {
+    return undefined;
+  }
+
+  if (extname(playgroundFile).toLowerCase() === ".html") {
+    return playgroundFile;
+  }
+
+  fail(
+    `Option "playgroundFile" must end with .html. Received: ${JSON.stringify(playgroundFile)}.`,
   );
 }
 

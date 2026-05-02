@@ -40,6 +40,7 @@ describe("resolveOpenApiOptions", () => {
       version: "2.5.1",
       description: "Payments and invoices",
       baseUrl: "https://api.example.com",
+      playgroundFile: "playground.html",
       contactName: "API Team",
       contactEmail: "api@example.com",
       licenseName: "MIT",
@@ -50,10 +51,23 @@ describe("resolveOpenApiOptions", () => {
       version: "2.5.1",
       description: "Payments and invoices",
       baseUrl: "https://api.example.com",
+      playgroundFile: "playground.html",
       contactName: "API Team",
       contactEmail: "api@example.com",
       licenseName: "MIT",
     });
+  });
+
+  it("accepts playgroundFile when it ends with .html", () => {
+    const options = resolvePluginOptions({ playgroundFile: "docs.html" });
+
+    expect(options.playgroundFile).toBe("docs.html");
+  });
+
+  it("trims playgroundFile before validating and storing it", () => {
+    const options = resolvePluginOptions({ playgroundFile: "  docs.html  " });
+
+    expect(options.playgroundFile).toBe("docs.html");
   });
 
   it("replaces empty title and version with defaults", () => {
@@ -67,5 +81,11 @@ describe("resolveOpenApiOptions", () => {
     expect(() => {
       resolvePluginOptions({ outFile: "openapi.txt" });
     }).toThrowError('Option "outFile" must end with .yaml, .yml, or .json');
+  });
+
+  it("throws when playgroundFile does not end with .html", () => {
+    expect(() => {
+      resolvePluginOptions({ playgroundFile: "docs.txt" });
+    }).toThrowError('Option "playgroundFile" must end with .html');
   });
 });
