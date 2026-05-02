@@ -66,7 +66,7 @@ All options are optional.
 | ---------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `outFile`        | `string` | `"openapi.yaml"` | Output filename inside `outDir`. Extension controls format: `.yaml`/`.yml` for YAML, `.json` for JSON.                                               |
 | `playgroundFile` | `string` | `""`             | Generates an additional standalone HTML API docs file next to `outFile`. Must end in `.html`. If it is not present, the playground is not generated. |
-| `playgroundUi`   | `string` | `"swagger"`      | Chooses which standalone docs UI to generate for `playgroundFile`: `swagger`, `scalar`, or `elements`.                                               |
+| `playgroundUi`   | `string` | `"swagger-ui"`   | Chooses which standalone docs UI to generate for `playgroundFile`: `swagger-ui`, `scalar`, or `stoplight-elements`.                                  |
 | `title`          | `string` | `"VDL RPC API"`  | Sets `info.title` in the generated OpenAPI document and the HTML `<title>` of generated playgrounds.                                                 |
 | `version`        | `string` | `"1.0.0"`        | Sets `info.version` in the generated OpenAPI document.                                                                                               |
 | `description`    | `string` | `""`             | Sets `info.description` when provided.                                                                                                               |
@@ -88,7 +88,7 @@ const config = {
       options {
         outFile "openapi.json"
         playgroundFile "playground.html"
-        playgroundUi "swagger"
+        playgroundUi "swagger-ui"
         title "Messaging API"
         version "2.1.0"
         description "Public RPC contract for messaging services"
