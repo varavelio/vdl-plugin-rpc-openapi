@@ -3180,7 +3180,7 @@ __name(extname2, "extname");
 
 // src/options/index.ts
 var DEFAULT_OUT_FILE = "openapi.yaml";
-var DEFAULT_PLAYGROUND_UI = "swagger";
+var DEFAULT_PLAYGROUND_UI = "swagger-ui";
 var DEFAULT_TITLE = "VDL RPC API";
 var DEFAULT_VERSION = "1.0.0";
 function resolvePluginOptions(options) {
@@ -3235,11 +3235,11 @@ function resolvePlaygroundUi(options) {
   const playgroundUi = trim(
     getOptionString(options, "playgroundUi", DEFAULT_PLAYGROUND_UI)
   ).toLowerCase();
-  if (playgroundUi === "swagger" || playgroundUi === "scalar" || playgroundUi === "elements") {
+  if (playgroundUi === "swagger-ui" || playgroundUi === "scalar" || playgroundUi === "stoplight-elements") {
     return playgroundUi;
   }
   fail(
-    `Option "playgroundUi" must be one of "swagger", "scalar", or "elements". Received: ${JSON.stringify(playgroundUi)}.`
+    `Option "playgroundUi" must be one of "swagger-ui", "scalar", or "stoplight-elements". Received: ${JSON.stringify(playgroundUi)}.`
   );
 }
 __name(resolvePlaygroundUi, "resolvePlaygroundUi");
@@ -3260,7 +3260,7 @@ function optionalStrOption(options, key) {
 __name(optionalStrOption, "optionalStrOption");
 
 // raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground-elements.html
-var playground_elements_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />\n    <title>%TITLE%</title>\n    <script\n      src="https://cdn.jsdelivr.net/npm/@stoplight/elements/web-components.min.js"\n      crossorigin\n    ></script>\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/@stoplight/elements/styles.min.css"\n      crossorigin\n    />\n  </head>\n  <body>\n    <elements-api id="docs" router="hash" layout="sidebar"></elements-api>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      const docs = document.getElementById("docs");\n      docs.apiDescriptionDocument = OPENAPI_SPEC;\n    </script>\n  </body>\n</html>\n';
+var playground_elements_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />\n    <title>%TITLE%</title>\n    <script\n      src="https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.19/web-components.min.js"\n      crossorigin\n    ></script>\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.19/styles.min.css"\n      crossorigin\n    />\n  </head>\n  <body>\n    <elements-api id="docs" router="hash" layout="sidebar"></elements-api>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      const docs = document.getElementById("docs");\n      docs.apiDescriptionDocument = OPENAPI_SPEC;\n    </script>\n  </body>\n</html>\n';
 
 // raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground-scalar.html
 var playground_scalar_default = `<!doctype html>
@@ -3921,7 +3921,7 @@ function renderPlaygroundHtml(options, jsonSpec) {
       escapeScriptTag(JSON.stringify(jsonSpec.trim()))
     );
   }
-  if (options.playgroundUi === "elements") {
+  if (options.playgroundUi === "stoplight-elements") {
     return playground_elements_default.replace("%TITLE%", escapeHtml(options.title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
   }
   return playground_swagger_default.replace("%TITLE%", escapeHtml(options.title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
