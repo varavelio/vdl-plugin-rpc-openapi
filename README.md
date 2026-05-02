@@ -62,16 +62,18 @@ vdl generate
 
 All options are optional.
 
-| Option         | Type     | Default          | What it changes                                                                                        |
-| -------------- | -------- | ---------------- | ------------------------------------------------------------------------------------------------------ |
-| `outFile`      | `string` | `"openapi.yaml"` | Output filename inside `outDir`. Extension controls format: `.yaml`/`.yml` for YAML, `.json` for JSON. |
-| `title`        | `string` | `"VDL RPC API"`  | Sets `info.title` in the generated OpenAPI document.                                                   |
-| `version`      | `string` | `"1.0.0"`        | Sets `info.version` in the generated OpenAPI document.                                                 |
-| `description`  | `string` | `""`             | Sets `info.description` when provided.                                                                 |
-| `baseUrl`      | `string` | `""`             | Adds a `servers` entry (`servers[0].url`) when provided.                                               |
-| `contactName`  | `string` | `""`             | Sets `info.contact.name` when provided.                                                                |
-| `contactEmail` | `string` | `""`             | Sets `info.contact.email` when provided.                                                               |
-| `licenseName`  | `string` | `""`             | Sets `info.license.name` when provided.                                                                |
+| Option           | Type     | Default          | What it changes                                                                                                                                      |
+| ---------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `outFile`        | `string` | `"openapi.yaml"` | Output filename inside `outDir`. Extension controls format: `.yaml`/`.yml` for YAML, `.json` for JSON.                                               |
+| `playgroundFile` | `string` | `""`             | Generates an additional standalone HTML API docs file next to `outFile`. Must end in `.html`. If it is not present, the playground is not generated. |
+| `playgroundUi`   | `string` | `"swagger"`      | Chooses which standalone docs UI to generate for `playgroundFile`: `swagger`, `scalar`, or `elements`.                                               |
+| `title`          | `string` | `"VDL RPC API"`  | Sets `info.title` in the generated OpenAPI document and the HTML `<title>` of generated playgrounds.                                                 |
+| `version`        | `string` | `"1.0.0"`        | Sets `info.version` in the generated OpenAPI document.                                                                                               |
+| `description`    | `string` | `""`             | Sets `info.description` when provided.                                                                                                               |
+| `baseUrl`        | `string` | `""`             | Adds `servers` entries when provided. Use a comma-separated list to emit multiple server URLs.                                                       |
+| `contactName`    | `string` | `""`             | Sets `info.contact.name` when provided.                                                                                                              |
+| `contactEmail`   | `string` | `""`             | Sets `info.contact.email` when provided.                                                                                                             |
+| `licenseName`    | `string` | `""`             | Sets `info.license.name` when provided.                                                                                                              |
 
 Example with all options:
 
@@ -85,10 +87,12 @@ const config = {
       outDir "./gen"
       options {
         outFile "openapi.json"
+        playgroundFile "playground.html"
+        playgroundUi "swagger"
         title "Messaging API"
         version "2.1.0"
         description "Public RPC contract for messaging services"
-        baseUrl "https://api.example.com/rpc"
+        baseUrl "https://api.example.com/rpc,https://backup.example.com/rpc"
         contactName "Platform API Team"
         contactEmail "api@example.com"
         licenseName "MIT"
@@ -97,6 +101,12 @@ const config = {
   ]
 }
 ```
+
+Notes:
+
+- `playgroundFile` only affects the extra HTML output. It never replaces the OpenAPI file from `outFile`.
+- `playgroundUi` is only used when `playgroundFile` is present.
+- `baseUrl` accepts either one URL or multiple comma-separated URLs. Each URL becomes one OpenAPI `servers` entry.
 
 ## RPC Annotation Model
 
