@@ -1,6 +1,6 @@
 {
   "extends": "@varavel/vdl-plugin-sdk/tsconfig.app.base.json",
-  "include": ["src/**/*.ts"],
+  "include": ["env.d.ts", "src/**/*.ts"],
   "exclude": [
     "src/**/*.test.ts",
     "src/**/*.spec.ts"
