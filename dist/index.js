@@ -3170,18 +3170,21 @@ __name(extname2, "extname");
 
 // src/options/index.ts
 var DEFAULT_OUT_FILE = "openapi.yaml";
+var DEFAULT_PLAYGROUND_UI = "swagger";
 var DEFAULT_TITLE = "VDL RPC API";
 var DEFAULT_VERSION = "1.0.0";
 function resolvePluginOptions(options) {
   const outFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
   const outFormat = resolveOutFormat(outFile);
   const playgroundFile = resolvePlaygroundFile(options);
+  const playgroundUi = resolvePlaygroundUi(options);
   const title = requiredStrOption(options, "title", DEFAULT_TITLE);
   const version = requiredStrOption(options, "version", DEFAULT_VERSION);
   return {
     outFile,
     outFormat,
     playgroundFile,
+    playgroundUi,
     title,
     version,
     description: optionalStrOption(options, "description"),
@@ -3218,6 +3221,18 @@ function resolvePlaygroundFile(options) {
   );
 }
 __name(resolvePlaygroundFile, "resolvePlaygroundFile");
+function resolvePlaygroundUi(options) {
+  const playgroundUi = trim(
+    getOptionString(options, "playgroundUi", DEFAULT_PLAYGROUND_UI)
+  ).toLowerCase();
+  if (playgroundUi === "swagger" || playgroundUi === "scalar") {
+    return playgroundUi;
+  }
+  fail(
+    `Option "playgroundUi" must be either "swagger" or "scalar". Received: ${JSON.stringify(playgroundUi)}.`
+  );
+}
+__name(resolvePlaygroundUi, "resolvePlaygroundUi");
 function requiredStrOption(options, key, defaultValue) {
   const value = getOptionString(options, key, defaultValue);
   return value === "" ? defaultValue : value;
@@ -3231,6 +3246,29 @@ __name(optionalStrOption, "optionalStrOption");
 
 // raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground.html
 var playground_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <title>%TITLE%</title>\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui.css"\n      crossorigin\n    />\n    <style>\n      body {\n        margin: 0;\n      }\n    </style>\n  </head>\n  <body>\n    <div id="swagger-ui"></div>\n    <script\n      src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui-bundle.js"\n      crossorigin\n    ></script>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      window.ui = SwaggerUIBundle({\n        spec: OPENAPI_SPEC,\n        dom_id: "#swagger-ui",\n        deepLinking: true,\n        tryItOutEnabled: true,\n        displayRequestDuration: true,\n        filter: true,\n        persistAuthorization: true,\n        presets: [SwaggerUIBundle.presets.apis],\n        layout: "BaseLayout",\n      });\n    </script>\n  </body>\n</html>\n';
+
+// raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground-scalar.html
+var playground_scalar_default = `<!doctype html>
+<html>
+  <head>
+    <title>%TITLE%</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <div id="app"></div>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.55.1/dist/browser/standalone.js"
+      crossorigin
+    ></script>
+    <script>
+      Scalar.createApiReference('#app', {
+        content: %OPENAPI_CONTENT%
+      })
+    </script>
+  </body>
+</html>
+`;
 
 // node_modules/@varavel/vdl-plugin-sdk/dist/utils/ir/get-annotation.js
 function getAnnotation(annotations, name) {
@@ -3842,7 +3880,7 @@ function generateOpenApi(input) {
   if (options.playgroundFile) {
     files.push({
       path: options.playgroundFile,
-      content: renderPlaygroundHtml(options.title, jsonSpec)
+      content: renderPlaygroundHtml(options, jsonSpec)
     });
   }
   return {
@@ -3858,8 +3896,14 @@ function stringifySpec(spec, outFormat) {
   return stringify3(spec);
 }
 __name(stringifySpec, "stringifySpec");
-function renderPlaygroundHtml(title, jsonSpec) {
-  return playground_default.replace("%TITLE%", escapeHtml(title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
+function renderPlaygroundHtml(options, jsonSpec) {
+  if (options.playgroundUi === "scalar") {
+    return playground_scalar_default.replace("%TITLE%", escapeHtml(options.title)).replace(
+      "%OPENAPI_CONTENT%",
+      escapeScriptTag(JSON.stringify(jsonSpec.trim()))
+    );
+  }
+  return playground_default.replace("%TITLE%", escapeHtml(options.title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
 }
 __name(renderPlaygroundHtml, "renderPlaygroundHtml");
 
