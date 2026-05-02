@@ -7,12 +7,12 @@ import { extname } from "@varavel/vdl-plugin-sdk/utils/paths";
 import { trim } from "@varavel/vdl-plugin-sdk/utils/strings";
 
 const DEFAULT_OUT_FILE = "openapi.yaml";
-const DEFAULT_PLAYGROUND_UI = "swagger";
+const DEFAULT_PLAYGROUND_UI = "swagger-ui";
 const DEFAULT_TITLE = "VDL RPC API";
 const DEFAULT_VERSION = "1.0.0";
 
 type OutFormat = "yaml" | "json";
-type PlaygroundUi = "swagger" | "scalar" | "elements";
+type PlaygroundUi = "swagger-ui" | "scalar" | "stoplight-elements";
 
 export type PluginOptions = {
   outFile: string;
@@ -94,15 +94,15 @@ function resolvePlaygroundUi(options: Record<string, string>): PlaygroundUi {
   ).toLowerCase();
 
   if (
-    playgroundUi === "swagger" ||
+    playgroundUi === "swagger-ui" ||
     playgroundUi === "scalar" ||
-    playgroundUi === "elements"
+    playgroundUi === "stoplight-elements"
   ) {
     return playgroundUi;
   }
 
   fail(
-    `Option "playgroundUi" must be one of "swagger", "scalar", or "elements". Received: ${JSON.stringify(playgroundUi)}.`,
+    `Option "playgroundUi" must be one of "swagger-ui", "scalar", or "stoplight-elements". Received: ${JSON.stringify(playgroundUi)}.`,
   );
 }
 

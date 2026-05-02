@@ -8,7 +8,7 @@ describe("resolveOpenApiOptions", () => {
     expect(options).toMatchObject({
       outFile: "openapi.yaml",
       outFormat: "yaml",
-      playgroundUi: "swagger",
+      playgroundUi: "swagger-ui",
       title: "VDL RPC API",
       version: "1.0.0",
     });
@@ -72,10 +72,10 @@ describe("resolveOpenApiOptions", () => {
     ]);
   });
 
-  it("defaults playgroundUi to swagger", () => {
+  it("defaults playgroundUi to swagger-ui", () => {
     const options = resolvePluginOptions({ playgroundFile: "docs.html" });
 
-    expect(options.playgroundUi).toBe("swagger");
+    expect(options.playgroundUi).toBe("swagger-ui");
   });
 
   it("accepts scalar as playgroundUi", () => {
@@ -84,10 +84,12 @@ describe("resolveOpenApiOptions", () => {
     expect(options.playgroundUi).toBe("scalar");
   });
 
-  it("accepts elements as playgroundUi", () => {
-    const options = resolvePluginOptions({ playgroundUi: "elements" });
+  it("accepts stoplight-elements as playgroundUi", () => {
+    const options = resolvePluginOptions({
+      playgroundUi: "stoplight-elements",
+    });
 
-    expect(options.playgroundUi).toBe("elements");
+    expect(options.playgroundUi).toBe("stoplight-elements");
   });
 
   it("accepts playgroundFile when it ends with .html", () => {
@@ -125,7 +127,7 @@ describe("resolveOpenApiOptions", () => {
     expect(() => {
       resolvePluginOptions({ playgroundUi: "redoc" });
     }).toThrowError(
-      'Option "playgroundUi" must be one of "swagger", "scalar", or "elements"',
+      'Option "playgroundUi" must be one of "swagger-ui", "scalar", or "stoplight-elements"',
     );
   });
 });
