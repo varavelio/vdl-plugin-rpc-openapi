@@ -95,6 +95,36 @@ describe("generateOpenApi", () => {
     expect(playgroundFile.content).not.toContain("SwaggerUIBundle(");
   });
 
+  it("generates a Stoplight Elements playground when playgroundUi is elements", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: {
+          title: "Elements API",
+          playgroundFile: "playground.html",
+          playgroundUi: "elements",
+        },
+      }),
+    );
+
+    const playgroundFile = getGeneratedFile(output, "playground.html");
+
+    expect(playgroundFile.content).toContain("<title>Elements API</title>");
+    expect(playgroundFile.content).toContain(
+      "https://cdn.jsdelivr.net/npm/@stoplight/elements/web-components.min.js",
+    );
+    expect(playgroundFile.content).toContain(
+      "https://cdn.jsdelivr.net/npm/@stoplight/elements/styles.min.css",
+    );
+    expect(playgroundFile.content).toContain("crossorigin");
+    expect(playgroundFile.content).toContain('<elements-api id="docs"');
+    expect(playgroundFile.content).toContain(
+      "docs.apiDescriptionDocument = OPENAPI_SPEC;",
+    );
+    expect(playgroundFile.content).toContain('"openapi": "3.0.0"');
+    expect(playgroundFile.content).not.toContain("SwaggerUIBundle(");
+    expect(playgroundFile.content).not.toContain("Scalar.createApiReference(");
+  });
+
   it("escapes closing script tags in the embedded playground JSON", () => {
     const output = generateOpenApi(
       pluginInput({

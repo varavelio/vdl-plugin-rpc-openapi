@@ -6,8 +6,9 @@ import {
 } from "@varavel/vdl-plugin-sdk/utils/strings";
 import { stringify as stringifyYaml } from "@varavel/vdl-plugin-sdk/utils/yaml";
 import { type PluginOptions, resolvePluginOptions } from "./options";
-import playgroundTemplate from "./playground.html?raw";
+import playgroundElementsTemplate from "./playground-elements.html?raw";
 import playgroundScalarTemplate from "./playground-scalar.html?raw";
+import playgroundSwaggerTemplate from "./playground-swagger.html?raw";
 import { extractRpcGroups } from "./rpc-model";
 import { buildOpenApiSpec } from "./spec-builder";
 
@@ -66,7 +67,13 @@ function renderPlaygroundHtml(
       );
   }
 
-  return playgroundTemplate
+  if (options.playgroundUi === "elements") {
+    return playgroundElementsTemplate
+      .replace("%TITLE%", escapeHtml(options.title))
+      .replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
+  }
+
+  return playgroundSwaggerTemplate
     .replace("%TITLE%", escapeHtml(options.title))
     .replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
 }

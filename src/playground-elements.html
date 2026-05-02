@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <title>%TITLE%</title>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@stoplight/elements/web-components.min.js"
+      crossorigin
+    ></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@stoplight/elements/styles.min.css"
+      crossorigin
+    />
+  </head>
+  <body>
+    <elements-api id="docs" router="hash" layout="sidebar"></elements-api>
+    <script>
+      const OPENAPI_SPEC = %OPENAPI_SPEC%;
+      const docs = document.getElementById("docs");
+      docs.apiDescriptionDocument = OPENAPI_SPEC;
+    </script>
+  </body>
+</html>

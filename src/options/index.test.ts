@@ -73,6 +73,12 @@ describe("resolveOpenApiOptions", () => {
     expect(options.playgroundUi).toBe("scalar");
   });
 
+  it("accepts elements as playgroundUi", () => {
+    const options = resolvePluginOptions({ playgroundUi: "elements" });
+
+    expect(options.playgroundUi).toBe("elements");
+  });
+
   it("accepts playgroundFile when it ends with .html", () => {
     const options = resolvePluginOptions({ playgroundFile: "docs.html" });
 
@@ -108,7 +114,7 @@ describe("resolveOpenApiOptions", () => {
     expect(() => {
       resolvePluginOptions({ playgroundUi: "redoc" });
     }).toThrowError(
-      'Option "playgroundUi" must be either "swagger" or "scalar"',
+      'Option "playgroundUi" must be one of "swagger", "scalar", or "elements"',
     );
   });
 });

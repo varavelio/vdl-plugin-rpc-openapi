@@ -9,7 +9,7 @@ const DEFAULT_TITLE = "VDL RPC API";
 const DEFAULT_VERSION = "1.0.0";
 
 type OutFormat = "yaml" | "json";
-type PlaygroundUi = "swagger" | "scalar";
+type PlaygroundUi = "swagger" | "scalar" | "elements";
 
 export type PluginOptions = {
   outFile: string;
@@ -90,12 +90,16 @@ function resolvePlaygroundUi(options: Record<string, string>): PlaygroundUi {
     getOptionString(options, "playgroundUi", DEFAULT_PLAYGROUND_UI),
   ).toLowerCase();
 
-  if (playgroundUi === "swagger" || playgroundUi === "scalar") {
+  if (
+    playgroundUi === "swagger" ||
+    playgroundUi === "scalar" ||
+    playgroundUi === "elements"
+  ) {
     return playgroundUi;
   }
 
   fail(
-    `Option "playgroundUi" must be either "swagger" or "scalar". Received: ${JSON.stringify(playgroundUi)}.`,
+    `Option "playgroundUi" must be one of "swagger", "scalar", or "elements". Received: ${JSON.stringify(playgroundUi)}.`,
   );
 }
 
