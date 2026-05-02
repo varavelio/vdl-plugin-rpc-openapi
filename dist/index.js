@@ -3141,6 +3141,16 @@ function stringify3(value) {
 }
 __name(stringify3, "stringify");
 
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/options/get-option-array.js
+function getOptionArray(options, key, defaultValue = [], separator = ",") {
+  const value = options === null || options === void 0 ? void 0 : options[key];
+  if (value === void 0) return defaultValue;
+  const trimmedValue = value.trim();
+  if (trimmedValue === "") return [];
+  return trimmedValue.split(separator).map((item) => item.trim()).filter((item) => item.length > 0);
+}
+__name(getOptionArray, "getOptionArray");
+
 // node_modules/@varavel/vdl-plugin-sdk/dist/utils/options/get-option-string.js
 function getOptionString(options, key, defaultValue) {
   const value = options === null || options === void 0 ? void 0 : options[key];
@@ -3188,7 +3198,7 @@ function resolvePluginOptions(options) {
     title,
     version,
     description: optionalStrOption(options, "description"),
-    baseUrl: optionalStrOption(options, "baseUrl"),
+    baseUrls: resolveBaseUrls(options),
     contactName: optionalStrOption(options, "contactName"),
     contactEmail: optionalStrOption(options, "contactEmail"),
     licenseName: optionalStrOption(options, "licenseName")
@@ -3233,6 +3243,11 @@ function resolvePlaygroundUi(options) {
   );
 }
 __name(resolvePlaygroundUi, "resolvePlaygroundUi");
+function resolveBaseUrls(options) {
+  const baseUrls = getOptionArray(options, "baseUrl", [], ",");
+  return baseUrls.length > 0 ? baseUrls : void 0;
+}
+__name(resolveBaseUrls, "resolveBaseUrls");
 function requiredStrOption(options, key, defaultValue) {
   const value = getOptionString(options, key, defaultValue);
   return value === "" ? defaultValue : value;
@@ -3853,8 +3868,8 @@ function buildOpenApiSpec(ir, rpcGroups, options) {
     info: buildInfo(options),
     security: [{ AuthToken: [] }]
   };
-  if (options.baseUrl) {
-    spec.servers = [{ url: options.baseUrl }];
+  if (options.baseUrls && options.baseUrls.length > 0) {
+    spec.servers = options.baseUrls.map((url) => ({ url }));
   }
   const tags = buildTags(rpcGroups);
   if (tags.length > 0) {
