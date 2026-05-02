@@ -3225,11 +3225,11 @@ function resolvePlaygroundUi(options) {
   const playgroundUi = trim(
     getOptionString(options, "playgroundUi", DEFAULT_PLAYGROUND_UI)
   ).toLowerCase();
-  if (playgroundUi === "swagger" || playgroundUi === "scalar") {
+  if (playgroundUi === "swagger" || playgroundUi === "scalar" || playgroundUi === "elements") {
     return playgroundUi;
   }
   fail(
-    `Option "playgroundUi" must be either "swagger" or "scalar". Received: ${JSON.stringify(playgroundUi)}.`
+    `Option "playgroundUi" must be one of "swagger", "scalar", or "elements". Received: ${JSON.stringify(playgroundUi)}.`
   );
 }
 __name(resolvePlaygroundUi, "resolvePlaygroundUi");
@@ -3244,8 +3244,8 @@ function optionalStrOption(options, key) {
 }
 __name(optionalStrOption, "optionalStrOption");
 
-// raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground.html
-var playground_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <title>%TITLE%</title>\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui.css"\n      crossorigin\n    />\n    <style>\n      body {\n        margin: 0;\n      }\n    </style>\n  </head>\n  <body>\n    <div id="swagger-ui"></div>\n    <script\n      src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui-bundle.js"\n      crossorigin\n    ></script>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      window.ui = SwaggerUIBundle({\n        spec: OPENAPI_SPEC,\n        dom_id: "#swagger-ui",\n        deepLinking: true,\n        tryItOutEnabled: true,\n        displayRequestDuration: true,\n        filter: true,\n        persistAuthorization: true,\n        presets: [SwaggerUIBundle.presets.apis],\n        layout: "BaseLayout",\n      });\n    </script>\n  </body>\n</html>\n';
+// raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground-elements.html
+var playground_elements_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />\n    <title>%TITLE%</title>\n    <script\n      src="https://cdn.jsdelivr.net/npm/@stoplight/elements/web-components.min.js"\n      crossorigin\n    ></script>\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/@stoplight/elements/styles.min.css"\n      crossorigin\n    />\n  </head>\n  <body>\n    <elements-api id="docs" router="hash" layout="sidebar"></elements-api>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      const docs = document.getElementById("docs");\n      docs.apiDescriptionDocument = OPENAPI_SPEC;\n    </script>\n  </body>\n</html>\n';
 
 // raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground-scalar.html
 var playground_scalar_default = `<!doctype html>
@@ -3269,6 +3269,9 @@ var playground_scalar_default = `<!doctype html>
   </body>
 </html>
 `;
+
+// raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground-swagger.html
+var playground_swagger_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <title>%TITLE%</title>\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui.css"\n      crossorigin\n    />\n    <style>\n      body {\n        margin: 0;\n      }\n    </style>\n  </head>\n  <body>\n    <div id="swagger-ui"></div>\n    <script\n      src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui-bundle.js"\n      crossorigin\n    ></script>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      window.ui = SwaggerUIBundle({\n        spec: OPENAPI_SPEC,\n        dom_id: "#swagger-ui",\n        deepLinking: true,\n        tryItOutEnabled: true,\n        displayRequestDuration: true,\n        filter: true,\n        persistAuthorization: true,\n        presets: [SwaggerUIBundle.presets.apis],\n        layout: "BaseLayout",\n      });\n    </script>\n  </body>\n</html>\n';
 
 // node_modules/@varavel/vdl-plugin-sdk/dist/utils/ir/get-annotation.js
 function getAnnotation(annotations, name) {
@@ -3903,7 +3906,10 @@ function renderPlaygroundHtml(options, jsonSpec) {
       escapeScriptTag(JSON.stringify(jsonSpec.trim()))
     );
   }
-  return playground_default.replace("%TITLE%", escapeHtml(options.title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
+  if (options.playgroundUi === "elements") {
+    return playground_elements_default.replace("%TITLE%", escapeHtml(options.title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
+  }
+  return playground_swagger_default.replace("%TITLE%", escapeHtml(options.title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
 }
 __name(renderPlaygroundHtml, "renderPlaygroundHtml");
 
