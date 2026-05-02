@@ -1,7 +1,12 @@
 import type { PluginInput, PluginOutput } from "@varavel/vdl-plugin-sdk";
 import { assertValidIrForRpc } from "@varavel/vdl-plugin-sdk/utils/rpc";
+import {
+  escapeHtml,
+  escapeScriptTag,
+} from "@varavel/vdl-plugin-sdk/utils/strings";
 import { stringify as stringifyYaml } from "@varavel/vdl-plugin-sdk/utils/yaml";
 import { type PluginOptions, resolvePluginOptions } from "./options";
+import playgroundTemplate from "./playground.html?raw";
 import { extractRpcGroups } from "./rpc-model";
 import { buildOpenApiSpec } from "./spec-builder";
 
@@ -14,14 +19,23 @@ export function generateOpenApi(input: PluginInput): PluginOutput {
 
   const rpcGroups = extractRpcGroups(input.ir);
   const spec = buildOpenApiSpec(input.ir, rpcGroups, options);
+  const jsonSpec = stringifySpec(spec, "json");
+  const files: NonNullable<PluginOutput["files"]> = [
+    {
+      path: options.outFile,
+      content: stringifySpec(spec, options.outFormat),
+    },
+  ];
+
+  if (options.playgroundFile) {
+    files.push({
+      path: options.playgroundFile,
+      content: renderPlaygroundHtml(options.title, jsonSpec),
+    });
+  }
 
   return {
-    files: [
-      {
-        path: options.outFile,
-        content: stringifySpec(spec, options.outFormat),
-      },
-    ],
+    files,
   };
 }
 
@@ -36,4 +50,10 @@ function stringifySpec(
     return `${JSON.stringify(spec, null, 2)}\n`;
   }
   return stringifyYaml(spec);
+}
+
+function renderPlaygroundHtml(title: string, jsonSpec: string): string {
+  return playgroundTemplate
+    .replace("%TITLE%", escapeHtml(title))
+    .replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
 }

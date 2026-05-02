@@ -43,6 +43,52 @@ describe("generateOpenApi", () => {
     expect(JSON.parse(generatedFile.content).openapi).toBe("3.0.0");
   });
 
+  it("generates an HTML playground file when playgroundFile is provided", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: {
+          outFile: "openapi.yaml",
+          title: "Payments API",
+          playgroundFile: "playground.html",
+        },
+      }),
+    );
+
+    expect(output.files).toHaveLength(2);
+
+    const openApiFile = getGeneratedFile(output, "openapi.yaml");
+    const playgroundFile = getGeneratedFile(output, "playground.html");
+
+    expect(
+      parseYaml<Record<string, unknown>>(openApiFile.content).openapi,
+    ).toBe("3.0.0");
+    expect(playgroundFile.content).toContain("<title>Payments API</title>");
+    expect(playgroundFile.content).toContain("const OPENAPI_SPEC = {");
+    expect(playgroundFile.content).toContain('"openapi": "3.0.0"');
+    expect(playgroundFile.content).not.toContain("<title>API Docs</title>");
+    expect(playgroundFile.content).not.toContain("const OPENAPI_SPEC = {};");
+  });
+
+  it("escapes closing script tags in the embedded playground JSON", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: {
+          description: "Danger </script><script>alert(1)</script>",
+          playgroundFile: "playground.html",
+        },
+      }),
+    );
+
+    const playgroundFile = getGeneratedFile(output, "playground.html");
+
+    expect(playgroundFile.content).toContain(
+      '"description": "Danger \\u003c/script\\u003e\\u003cscript\\u003ealert(1)\\u003c/script\\u003e"',
+    );
+    expect(playgroundFile.content).not.toContain(
+      '"description": "Danger </script><script>alert(1)</script>"',
+    );
+  });
+
   it("writes info metadata from options", () => {
     const output = generateOpenApi(
       pluginInput({
@@ -119,6 +165,17 @@ function getSingleGeneratedFile(output: PluginOutput): PluginOutputFile {
   expect(output.files).toHaveLength(1);
 
   const generatedFile = output.files?.[0];
+  expect(generatedFile).toBeDefined();
+
+  return generatedFile as PluginOutputFile;
+}
+
+function getGeneratedFile(
+  output: PluginOutput,
+  path: string,
+): PluginOutputFile {
+  const generatedFile = output.files?.find((file) => file.path === path);
+
   expect(generatedFile).toBeDefined();
 
   return generatedFile as PluginOutputFile;
