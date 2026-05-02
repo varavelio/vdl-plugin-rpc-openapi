@@ -1,0 +1,15 @@
+const config = {
+  version 1
+  plugins [
+    {
+      src "../../../dist/index.js"
+      schema "./schema.vdl"
+      outDir "./gen"
+      options {
+        title "Playground API"
+        version "1.0.0"
+        playgroundFile "playground.html"
+      }
+    }
+  ]
+}

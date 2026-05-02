@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { readdirSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, rmSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { parse as parseYaml } from "@varavel/vdl-plugin-sdk/utils/yaml";
 import OpenAPISchemaValidator from "openapi-schema-validator";
@@ -30,7 +30,7 @@ describe("VDL Plugin OpenAPI e2e fixtures", () => {
   });
 
   it("includes all permanent e2e fixtures", () => {
-    expect(fixtureNames).toHaveLength(18);
+    expect(fixtureNames).toHaveLength(19);
   });
 
   it.each(fixtureNames)("matches fixture %s", (fixtureName) => {
@@ -58,7 +58,7 @@ describe("VDL Plugin OpenAPI e2e fixtures", () => {
         stdio: "pipe",
       });
 
-      const generatedPath = findGeneratedFile(fixtureDir);
+      const generatedPath = findGeneratedOpenApiFile(fixtureDir);
       const expectedPath = join(fixtureDir, expectedFileName);
       const generatedDocument = parseByExtension(generatedPath);
       const validationResult = openApiValidator.validate(
@@ -72,6 +72,8 @@ describe("VDL Plugin OpenAPI e2e fixtures", () => {
       // Compare parsed documents so formatting differences do not hide real
       // regressions in the generated OpenAPI structure.
       expect(generatedDocument).toEqual(parseByExtension(expectedPath));
+
+      assertGeneratedPlaygroundFile(fixtureDir, generatedDocument);
     } finally {
       // Generated output is disposable and must never become fixture input.
       rmSync(join(fixtureDir, "gen"), { recursive: true, force: true });
@@ -109,7 +111,7 @@ function findExpectedFileName(
   throw new Error(`Expected file not found in fixture: ${fixtureDir}`);
 }
 
-function findGeneratedFile(fixtureDir: string): string {
+function findGeneratedOpenApiFile(fixtureDir: string): string {
   const generatedDir = join(fixtureDir, "gen");
   const generatedFiles = readdirSync(generatedDir)
     .filter(
@@ -127,6 +129,41 @@ function findGeneratedFile(fixtureDir: string): string {
   }
 
   return join(generatedDir, firstGeneratedFile);
+}
+
+function assertGeneratedPlaygroundFile(
+  fixtureDir: string,
+  generatedDocument: Record<string, unknown>,
+): void {
+  const playgroundFile = readConfiguredOption(fixtureDir, "playgroundFile");
+
+  if (!playgroundFile) {
+    return;
+  }
+
+  const playgroundPath = join(fixtureDir, "gen", playgroundFile);
+
+  expect(existsSync(playgroundPath)).toBe(true);
+
+  const playgroundContent = readFileSync(playgroundPath, "utf-8");
+
+  expect(playgroundContent).toContain("const OPENAPI_SPEC = {");
+  expect(playgroundContent).toContain(
+    JSON.stringify(generatedDocument, null, 2).trim().slice(0, 32),
+  );
+}
+
+function readConfiguredOption(
+  fixtureDir: string,
+  optionName: string,
+): string | undefined {
+  const configContent = readFileSync(
+    join(fixtureDir, "vdl.config.vdl"),
+    "utf-8",
+  );
+  const match = configContent.match(new RegExp(`${optionName}\\s+"([^"]+)"`));
+
+  return match?.[1];
 }
 
 function parseByExtension(path: string): Record<string, unknown> {
