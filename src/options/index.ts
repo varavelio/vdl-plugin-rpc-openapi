@@ -4,15 +4,18 @@ import { extname } from "@varavel/vdl-plugin-sdk/utils/paths";
 import { trim } from "@varavel/vdl-plugin-sdk/utils/strings";
 
 const DEFAULT_OUT_FILE = "openapi.yaml";
+const DEFAULT_PLAYGROUND_UI = "swagger";
 const DEFAULT_TITLE = "VDL RPC API";
 const DEFAULT_VERSION = "1.0.0";
 
 type OutFormat = "yaml" | "json";
+type PlaygroundUi = "swagger" | "scalar";
 
 export type PluginOptions = {
   outFile: string;
   outFormat: OutFormat;
   playgroundFile?: string;
+  playgroundUi: PlaygroundUi;
   title: string;
   version: string;
   description?: string;
@@ -31,6 +34,7 @@ export function resolvePluginOptions(
   const outFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
   const outFormat = resolveOutFormat(outFile);
   const playgroundFile = resolvePlaygroundFile(options);
+  const playgroundUi = resolvePlaygroundUi(options);
   const title = requiredStrOption(options, "title", DEFAULT_TITLE);
   const version = requiredStrOption(options, "version", DEFAULT_VERSION);
 
@@ -38,6 +42,7 @@ export function resolvePluginOptions(
     outFile,
     outFormat,
     playgroundFile,
+    playgroundUi,
     title,
     version,
     description: optionalStrOption(options, "description"),
@@ -77,6 +82,20 @@ function resolvePlaygroundFile(
 
   fail(
     `Option "playgroundFile" must end with .html. Received: ${JSON.stringify(playgroundFile)}.`,
+  );
+}
+
+function resolvePlaygroundUi(options: Record<string, string>): PlaygroundUi {
+  const playgroundUi = trim(
+    getOptionString(options, "playgroundUi", DEFAULT_PLAYGROUND_UI),
+  ).toLowerCase();
+
+  if (playgroundUi === "swagger" || playgroundUi === "scalar") {
+    return playgroundUi;
+  }
+
+  fail(
+    `Option "playgroundUi" must be either "swagger" or "scalar". Received: ${JSON.stringify(playgroundUi)}.`,
   );
 }
 

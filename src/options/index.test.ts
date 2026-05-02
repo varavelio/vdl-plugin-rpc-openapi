@@ -8,6 +8,7 @@ describe("resolveOpenApiOptions", () => {
     expect(options).toMatchObject({
       outFile: "openapi.yaml",
       outFormat: "yaml",
+      playgroundUi: "swagger",
       title: "VDL RPC API",
       version: "1.0.0",
     });
@@ -41,6 +42,7 @@ describe("resolveOpenApiOptions", () => {
       description: "Payments and invoices",
       baseUrl: "https://api.example.com",
       playgroundFile: "playground.html",
+      playgroundUi: "scalar",
       contactName: "API Team",
       contactEmail: "api@example.com",
       licenseName: "MIT",
@@ -52,10 +54,23 @@ describe("resolveOpenApiOptions", () => {
       description: "Payments and invoices",
       baseUrl: "https://api.example.com",
       playgroundFile: "playground.html",
+      playgroundUi: "scalar",
       contactName: "API Team",
       contactEmail: "api@example.com",
       licenseName: "MIT",
     });
+  });
+
+  it("defaults playgroundUi to swagger", () => {
+    const options = resolvePluginOptions({ playgroundFile: "docs.html" });
+
+    expect(options.playgroundUi).toBe("swagger");
+  });
+
+  it("accepts scalar as playgroundUi", () => {
+    const options = resolvePluginOptions({ playgroundUi: "scalar" });
+
+    expect(options.playgroundUi).toBe("scalar");
   });
 
   it("accepts playgroundFile when it ends with .html", () => {
@@ -87,5 +102,13 @@ describe("resolveOpenApiOptions", () => {
     expect(() => {
       resolvePluginOptions({ playgroundFile: "docs.txt" });
     }).toThrowError('Option "playgroundFile" must end with .html');
+  });
+
+  it("throws when playgroundUi is unsupported", () => {
+    expect(() => {
+      resolvePluginOptions({ playgroundUi: "redoc" });
+    }).toThrowError(
+      'Option "playgroundUi" must be either "swagger" or "scalar"',
+    );
   });
 });

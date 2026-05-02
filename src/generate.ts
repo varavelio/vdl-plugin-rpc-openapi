@@ -7,6 +7,7 @@ import {
 import { stringify as stringifyYaml } from "@varavel/vdl-plugin-sdk/utils/yaml";
 import { type PluginOptions, resolvePluginOptions } from "./options";
 import playgroundTemplate from "./playground.html?raw";
+import playgroundScalarTemplate from "./playground-scalar.html?raw";
 import { extractRpcGroups } from "./rpc-model";
 import { buildOpenApiSpec } from "./spec-builder";
 
@@ -30,7 +31,7 @@ export function generateOpenApi(input: PluginInput): PluginOutput {
   if (options.playgroundFile) {
     files.push({
       path: options.playgroundFile,
-      content: renderPlaygroundHtml(options.title, jsonSpec),
+      content: renderPlaygroundHtml(options, jsonSpec),
     });
   }
 
@@ -52,8 +53,20 @@ function stringifySpec(
   return stringifyYaml(spec);
 }
 
-function renderPlaygroundHtml(title: string, jsonSpec: string): string {
+function renderPlaygroundHtml(
+  options: PluginOptions,
+  jsonSpec: string,
+): string {
+  if (options.playgroundUi === "scalar") {
+    return playgroundScalarTemplate
+      .replace("%TITLE%", escapeHtml(options.title))
+      .replace(
+        "%OPENAPI_CONTENT%",
+        escapeScriptTag(JSON.stringify(jsonSpec.trim())),
+      );
+  }
+
   return playgroundTemplate
-    .replace("%TITLE%", escapeHtml(title))
+    .replace("%TITLE%", escapeHtml(options.title))
     .replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
 }

@@ -69,6 +69,32 @@ describe("generateOpenApi", () => {
     expect(playgroundFile.content).not.toContain("const OPENAPI_SPEC = {};");
   });
 
+  it("generates a Scalar playground when playgroundUi is scalar", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: {
+          title: "Scalar API",
+          playgroundFile: "playground.html",
+          playgroundUi: "scalar",
+        },
+      }),
+    );
+
+    const playgroundFile = getGeneratedFile(output, "playground.html");
+
+    expect(playgroundFile.content).toContain("<title>Scalar API</title>");
+    expect(playgroundFile.content).toContain(
+      "https://cdn.jsdelivr.net/npm/@scalar/api-reference@1.55.1/dist/browser/standalone.js",
+    );
+    expect(playgroundFile.content).toContain(
+      "Scalar.createApiReference('#app', {",
+    );
+    expect(playgroundFile.content).toContain(
+      'content: "{\\n  \\"openapi\\": \\"3.0.0\\"',
+    );
+    expect(playgroundFile.content).not.toContain("SwaggerUIBundle(");
+  });
+
   it("escapes closing script tags in the embedded playground JSON", () => {
     const output = generateOpenApi(
       pluginInput({

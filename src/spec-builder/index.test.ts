@@ -24,6 +24,7 @@ import {
 const baseOptions: PluginOptions = {
   outFile: "openapi.yaml",
   outFormat: "yaml",
+  playgroundUi: "swagger",
   title: "Test API",
   version: "1.0.0",
 };
