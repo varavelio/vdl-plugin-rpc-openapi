@@ -1,5 +1,8 @@
 import { fail } from "@varavel/vdl-plugin-sdk";
-import { getOptionString } from "@varavel/vdl-plugin-sdk/utils/options";
+import {
+  getOptionArray,
+  getOptionString,
+} from "@varavel/vdl-plugin-sdk/utils/options";
 import { extname } from "@varavel/vdl-plugin-sdk/utils/paths";
 import { trim } from "@varavel/vdl-plugin-sdk/utils/strings";
 
@@ -19,7 +22,7 @@ export type PluginOptions = {
   title: string;
   version: string;
   description?: string;
-  baseUrl?: string;
+  baseUrls?: string[];
   contactName?: string;
   contactEmail?: string;
   licenseName?: string;
@@ -46,7 +49,7 @@ export function resolvePluginOptions(
     title,
     version,
     description: optionalStrOption(options, "description"),
-    baseUrl: optionalStrOption(options, "baseUrl"),
+    baseUrls: resolveBaseUrls(options),
     contactName: optionalStrOption(options, "contactName"),
     contactEmail: optionalStrOption(options, "contactEmail"),
     licenseName: optionalStrOption(options, "licenseName"),
@@ -101,6 +104,14 @@ function resolvePlaygroundUi(options: Record<string, string>): PlaygroundUi {
   fail(
     `Option "playgroundUi" must be one of "swagger", "scalar", or "elements". Received: ${JSON.stringify(playgroundUi)}.`,
   );
+}
+
+function resolveBaseUrls(
+  options: Record<string, string>,
+): string[] | undefined {
+  const baseUrls = getOptionArray(options, "baseUrl", [], ",");
+
+  return baseUrls.length > 0 ? baseUrls : undefined;
 }
 
 function requiredStrOption(

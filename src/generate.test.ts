@@ -171,6 +171,25 @@ describe("generateOpenApi", () => {
     expect(parsed.servers).toEqual([{ url: "https://payments.example.com" }]);
   });
 
+  it("writes multiple servers when baseUrl contains comma-separated URLs", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: {
+          baseUrl: "https://api.example.com, https://backup.example.com",
+        },
+      }),
+    );
+
+    const parsed = parseYaml<Record<string, unknown>>(
+      getSingleGeneratedFile(output).content,
+    );
+
+    expect(parsed.servers).toEqual([
+      { url: "https://api.example.com" },
+      { url: "https://backup.example.com" },
+    ]);
+  });
+
   it("generates paths and components from RPC operations", () => {
     const output = generateOpenApi(
       pluginInput({

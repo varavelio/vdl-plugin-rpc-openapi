@@ -28,8 +28,8 @@ export function buildOpenApiSpec(
     security: [{ AuthToken: [] }],
   };
 
-  if (options.baseUrl) {
-    spec.servers = [{ url: options.baseUrl }];
+  if (options.baseUrls && options.baseUrls.length > 0) {
+    spec.servers = options.baseUrls.map((url) => ({ url }));
   }
 
   const tags = buildTags(rpcGroups);

@@ -220,10 +220,13 @@ describe("buildOpenApiSpec", () => {
 
     const spec = buildOpenApiSpec(ir, rpcGroups, {
       ...baseOptions,
-      baseUrl: "https://api.example.com",
+      baseUrls: ["https://api.example.com", "https://backup.example.com"],
     });
 
-    expect(spec.servers).toEqual([{ url: "https://api.example.com" }]);
+    expect(spec.servers).toEqual([
+      { url: "https://api.example.com" },
+      { url: "https://backup.example.com" },
+    ]);
     expect(spec.paths).toMatchObject({
       "/Chat/messages": {
         post: {

@@ -52,13 +52,24 @@ describe("resolveOpenApiOptions", () => {
       title: "Billing API",
       version: "2.5.1",
       description: "Payments and invoices",
-      baseUrl: "https://api.example.com",
+      baseUrls: ["https://api.example.com"],
       playgroundFile: "playground.html",
       playgroundUi: "scalar",
       contactName: "API Team",
       contactEmail: "api@example.com",
       licenseName: "MIT",
     });
+  });
+
+  it("splits baseUrl on commas into multiple server URLs", () => {
+    const options = resolvePluginOptions({
+      baseUrl: "https://api.example.com, https://backup.example.com ",
+    });
+
+    expect(options.baseUrls).toEqual([
+      "https://api.example.com",
+      "https://backup.example.com",
+    ]);
   });
 
   it("defaults playgroundUi to swagger", () => {
