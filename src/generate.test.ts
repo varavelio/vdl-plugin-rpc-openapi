@@ -95,13 +95,13 @@ describe("generateOpenApi", () => {
     expect(playgroundFile.content).not.toContain("SwaggerUIBundle(");
   });
 
-  it("generates a Stoplight Elements playground when playgroundUi is elements", () => {
+  it("generates a Stoplight Elements playground when playgroundUi is stoplight-elements", () => {
     const output = generateOpenApi(
       pluginInput({
         options: {
           title: "Elements API",
           playgroundFile: "playground.html",
-          playgroundUi: "elements",
+          playgroundUi: "stoplight-elements",
         },
       }),
     );
@@ -110,10 +110,10 @@ describe("generateOpenApi", () => {
 
     expect(playgroundFile.content).toContain("<title>Elements API</title>");
     expect(playgroundFile.content).toContain(
-      "https://cdn.jsdelivr.net/npm/@stoplight/elements/web-components.min.js",
+      "https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.19/web-components.min.js",
     );
     expect(playgroundFile.content).toContain(
-      "https://cdn.jsdelivr.net/npm/@stoplight/elements/styles.min.css",
+      "https://cdn.jsdelivr.net/npm/@stoplight/elements@9.0.19/styles.min.css",
     );
     expect(playgroundFile.content).toContain("crossorigin");
     expect(playgroundFile.content).toContain('<elements-api id="docs"');

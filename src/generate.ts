@@ -67,7 +67,7 @@ function renderPlaygroundHtml(
       );
   }
 
-  if (options.playgroundUi === "elements") {
+  if (options.playgroundUi === "stoplight-elements") {
     return playgroundElementsTemplate
       .replace("%TITLE%", escapeHtml(options.title))
       .replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
