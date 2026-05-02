@@ -1,4 +1,3 @@
-"use strict";
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
 var __getOwnPropNames = Object.getOwnPropertyNames;
@@ -178,6 +177,73 @@ function withFallbackFile(primary, fallback) {
   return _objectSpread2(_objectSpread2({}, primary), {}, { file: fallback.file });
 }
 __name(withFallbackFile, "withFallbackFile");
+
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/words.js
+var ACRONYM_TO_CAPITALIZED_WORD_BOUNDARY_RE = /([A-Z]+)([A-Z][a-z])/g;
+var LOWERCASE_OR_DIGIT_TO_UPPERCASE_BOUNDARY_RE = /([a-z0-9])([A-Z])/g;
+var NON_ALPHANUMERIC_SEQUENCE_RE = /[^A-Za-z0-9]+/g;
+var WHITESPACE_SEQUENCE_RE = /\s+/;
+function words(str) {
+  const normalized = str.replace(ACRONYM_TO_CAPITALIZED_WORD_BOUNDARY_RE, "$1 $2").replace(LOWERCASE_OR_DIGIT_TO_UPPERCASE_BOUNDARY_RE, "$1 $2").replace(NON_ALPHANUMERIC_SEQUENCE_RE, " ").trim();
+  return normalized.length === 0 ? [] : normalized.split(WHITESPACE_SEQUENCE_RE);
+}
+__name(words, "words");
+
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/pascal-case.js
+function capitalize(word) {
+  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+}
+__name(capitalize, "capitalize");
+function pascalCase(str) {
+  return words(str).map(capitalize).join("");
+}
+__name(pascalCase, "pascalCase");
+
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/escape-html.js
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+}
+__name(escapeHtml, "escapeHtml");
+
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/escape-script-tag.js
+function escapeScriptTag(str) {
+  return str.replace(/</g, "\\u003c").replace(/>/g, "\\u003e").replace(/\u2028/g, "\\u2028").replace(/\u2029/g, "\\u2029");
+}
+__name(escapeScriptTag, "escapeScriptTag");
+
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/trim-internal.js
+function toTrimCharacterSet(chars) {
+  const values = Array.isArray(chars) ? chars : [chars];
+  const characterSet = /* @__PURE__ */ new Set();
+  for (const value of values) for (const character of Array.from(value)) characterSet.add(character);
+  return characterSet;
+}
+__name(toTrimCharacterSet, "toTrimCharacterSet");
+function trimWithCharacters(str, chars, mode) {
+  if (chars === void 0) switch (mode) {
+    case "start":
+      return str.replace(/^\s+/, "");
+    case "end":
+      return str.replace(/\s+$/, "");
+    default:
+      return str.trim();
+  }
+  const trimCharacters = toTrimCharacterSet(chars);
+  if (trimCharacters.size === 0) return str;
+  const characters = Array.from(str);
+  let start = 0;
+  let end = characters.length;
+  if (mode === "start" || mode === "both") while (start < end && trimCharacters.has(characters[start])) start += 1;
+  if (mode === "end" || mode === "both") while (end > start && trimCharacters.has(characters[end - 1])) end -= 1;
+  return characters.slice(start, end).join("");
+}
+__name(trimWithCharacters, "trimWithCharacters");
+
+// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/trim.js
+function trim(str, chars) {
+  return trimWithCharacters(str, chars, "both");
+}
+__name(trim, "trim");
 
 // node_modules/@varavel/vdl-plugin-sdk/dist/node_modules/yaml/browser/dist/nodes/identity.js
 var ALIAS = /* @__PURE__ */ Symbol.for("yaml.alias");
@@ -3109,11 +3175,13 @@ var DEFAULT_VERSION = "1.0.0";
 function resolvePluginOptions(options) {
   const outFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
   const outFormat = resolveOutFormat(outFile);
+  const playgroundFile = resolvePlaygroundFile(options);
   const title = requiredStrOption(options, "title", DEFAULT_TITLE);
   const version = requiredStrOption(options, "version", DEFAULT_VERSION);
   return {
     outFile,
     outFormat,
+    playgroundFile,
     title,
     version,
     description: optionalStrOption(options, "description"),
@@ -3134,6 +3202,22 @@ function resolveOutFormat(outFile) {
   );
 }
 __name(resolveOutFormat, "resolveOutFormat");
+function resolvePlaygroundFile(options) {
+  var _a14;
+  const playgroundFile = trim(
+    (_a14 = optionalStrOption(options, "playgroundFile")) != null ? _a14 : ""
+  );
+  if (!playgroundFile) {
+    return void 0;
+  }
+  if (extname2(playgroundFile).toLowerCase() === ".html") {
+    return playgroundFile;
+  }
+  fail(
+    `Option "playgroundFile" must end with .html. Received: ${JSON.stringify(playgroundFile)}.`
+  );
+}
+__name(resolvePlaygroundFile, "resolvePlaygroundFile");
 function requiredStrOption(options, key, defaultValue) {
   const value = getOptionString(options, key, defaultValue);
   return value === "" ? defaultValue : value;
@@ -3145,33 +3229,15 @@ function optionalStrOption(options, key) {
 }
 __name(optionalStrOption, "optionalStrOption");
 
+// raw-file:/workspaces/vdl-plugin-rpc-openapi/src/playground.html
+var playground_default = '<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8" />\n    <title>%TITLE%</title>\n    <meta name="viewport" content="width=device-width, initial-scale=1" />\n    <link\n      rel="stylesheet"\n      href="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui.css"\n      crossorigin\n    />\n    <style>\n      body {\n        margin: 0;\n      }\n    </style>\n  </head>\n  <body>\n    <div id="swagger-ui"></div>\n    <script\n      src="https://cdn.jsdelivr.net/npm/swagger-ui-dist@5.32.5/swagger-ui-bundle.js"\n      crossorigin\n    ></script>\n    <script>\n      const OPENAPI_SPEC = %OPENAPI_SPEC%;\n      window.ui = SwaggerUIBundle({\n        spec: OPENAPI_SPEC,\n        dom_id: "#swagger-ui",\n        deepLinking: true,\n        tryItOutEnabled: true,\n        displayRequestDuration: true,\n        filter: true,\n        persistAuthorization: true,\n        presets: [SwaggerUIBundle.presets.apis],\n        layout: "BaseLayout",\n      });\n    </script>\n  </body>\n</html>\n';
+
 // node_modules/@varavel/vdl-plugin-sdk/dist/utils/ir/get-annotation.js
 function getAnnotation(annotations, name) {
   if (!annotations) return void 0;
   return annotations.find((anno) => anno.name === name);
 }
 __name(getAnnotation, "getAnnotation");
-
-// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/words.js
-var ACRONYM_TO_CAPITALIZED_WORD_BOUNDARY_RE = /([A-Z]+)([A-Z][a-z])/g;
-var LOWERCASE_OR_DIGIT_TO_UPPERCASE_BOUNDARY_RE = /([a-z0-9])([A-Z])/g;
-var NON_ALPHANUMERIC_SEQUENCE_RE = /[^A-Za-z0-9]+/g;
-var WHITESPACE_SEQUENCE_RE = /\s+/;
-function words(str) {
-  const normalized = str.replace(ACRONYM_TO_CAPITALIZED_WORD_BOUNDARY_RE, "$1 $2").replace(LOWERCASE_OR_DIGIT_TO_UPPERCASE_BOUNDARY_RE, "$1 $2").replace(NON_ALPHANUMERIC_SEQUENCE_RE, " ").trim();
-  return normalized.length === 0 ? [] : normalized.split(WHITESPACE_SEQUENCE_RE);
-}
-__name(words, "words");
-
-// node_modules/@varavel/vdl-plugin-sdk/dist/utils/strings/pascal-case.js
-function capitalize(word) {
-  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-}
-__name(capitalize, "capitalize");
-function pascalCase(str) {
-  return words(str).map(capitalize).join("");
-}
-__name(pascalCase, "pascalCase");
 
 // node_modules/@varavel/vdl-plugin-sdk/dist/utils/ir/unwrap-literal.js
 function unwrapLiteral(value) {
@@ -3766,13 +3832,21 @@ function generateOpenApi(input) {
   assertValidIrForRpc(input.ir);
   const rpcGroups = extractRpcGroups(input.ir);
   const spec = buildOpenApiSpec(input.ir, rpcGroups, options);
+  const jsonSpec = stringifySpec(spec, "json");
+  const files = [
+    {
+      path: options.outFile,
+      content: stringifySpec(spec, options.outFormat)
+    }
+  ];
+  if (options.playgroundFile) {
+    files.push({
+      path: options.playgroundFile,
+      content: renderPlaygroundHtml(options.title, jsonSpec)
+    });
+  }
   return {
-    files: [
-      {
-        path: options.outFile,
-        content: stringifySpec(spec, options.outFormat)
-      }
-    ]
+    files
   };
 }
 __name(generateOpenApi, "generateOpenApi");
@@ -3784,6 +3858,10 @@ function stringifySpec(spec, outFormat) {
   return stringify3(spec);
 }
 __name(stringifySpec, "stringifySpec");
+function renderPlaygroundHtml(title, jsonSpec) {
+  return playground_default.replace("%TITLE%", escapeHtml(title)).replace("%OPENAPI_SPEC%", escapeScriptTag(jsonSpec.trim()));
+}
+__name(renderPlaygroundHtml, "renderPlaygroundHtml");
 
 // src/index.ts
 var generate = definePlugin((input) => generateOpenApi(input));
