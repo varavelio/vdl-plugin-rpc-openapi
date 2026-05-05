@@ -15,7 +15,8 @@ type OutFormat = "yaml" | "json";
 type PlaygroundUi = "swagger-ui" | "scalar" | "stoplight-elements";
 
 export type PluginOptions = {
-  outFile: string;
+  /** Path for the generated OpenAPI schema file. When undefined, no schema file is produced. */
+  outFile: string | undefined;
   outFormat: OutFormat;
   playgroundFile?: string;
   playgroundUi: PlaygroundUi;
@@ -34,8 +35,9 @@ export type PluginOptions = {
 export function resolvePluginOptions(
   options: Record<string, string>,
 ): PluginOptions {
-  const outFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
-  const outFormat = resolveOutFormat(outFile);
+  const rawOutFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
+  const outFile = rawOutFile === "" ? undefined : rawOutFile;
+  const outFormat = outFile ? resolveOutFormat(outFile) : "yaml";
   const playgroundFile = resolvePlaygroundFile(options);
   const playgroundUi = resolvePlaygroundUi(options);
   const title = requiredStrOption(options, "title", DEFAULT_TITLE);

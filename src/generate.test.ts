@@ -190,6 +190,34 @@ describe("generateOpenApi", () => {
     ]);
   });
 
+  it("returns no files when outFile is empty and no playground is configured", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: { outFile: "" },
+      }),
+    );
+
+    expect(output.files).toHaveLength(0);
+  });
+
+  it("returns only the playground file when outFile is empty but a playground is configured", () => {
+    const output = generateOpenApi(
+      pluginInput({
+        options: {
+          outFile: "",
+          playgroundFile: "playground.html",
+        },
+      }),
+    );
+
+    expect(output.files).toHaveLength(1);
+
+    const file = getGeneratedFile(output, "playground.html");
+    expect(file.content).toContain("<title>VDL RPC API</title>");
+    expect(file.content).toContain("const OPENAPI_SPEC = {");
+    expect(file.content).toContain('"openapi": "3.0.0"');
+  });
+
   it("generates paths and components from RPC operations", () => {
     const output = generateOpenApi(
       pluginInput({

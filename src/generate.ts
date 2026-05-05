@@ -21,15 +21,17 @@ export function generateOpenApi(input: PluginInput): PluginOutput {
 
   const rpcGroups = extractRpcGroups(input.ir);
   const spec = buildOpenApiSpec(input.ir, rpcGroups, options);
-  const jsonSpec = stringifySpec(spec, "json");
-  const files: NonNullable<PluginOutput["files"]> = [
-    {
+  const files: NonNullable<PluginOutput["files"]> = [];
+
+  if (options.outFile) {
+    files.push({
       path: options.outFile,
       content: stringifySpec(spec, options.outFormat),
-    },
-  ];
+    });
+  }
 
   if (options.playgroundFile) {
+    const jsonSpec = stringifySpec(spec, "json");
     files.push({
       path: options.playgroundFile,
       content: renderPlaygroundHtml(options, jsonSpec),

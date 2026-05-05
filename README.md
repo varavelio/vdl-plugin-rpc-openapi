@@ -42,7 +42,7 @@ const config = {
   version 1
   plugins [
     {
-      src "varavelio/vdl-plugin-rpc-openapi@v0.1.2"
+      src "varavelio/vdl-plugin-rpc-openapi@v0.1.3"
       schema "./schema.vdl"
       outDir "./gen"
     }
@@ -62,18 +62,18 @@ vdl generate
 
 All options are optional.
 
-| Option           | Type     | Default          | What it changes                                                                                                                                      |
-| ---------------- | -------- | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `outFile`        | `string` | `"openapi.yaml"` | Output filename inside `outDir`. Extension controls format: `.yaml`/`.yml` for YAML, `.json` for JSON.                                               |
-| `playgroundFile` | `string` | `""`             | Generates an additional standalone HTML API docs file next to `outFile`. Must end in `.html`. If it is not present, the playground is not generated. |
-| `playgroundUi`   | `string` | `"swagger-ui"`   | Chooses which standalone docs UI to generate for `playgroundFile`: `swagger-ui`, `scalar`, or `stoplight-elements`.                                  |
-| `title`          | `string` | `"VDL RPC API"`  | Sets `info.title` in the generated OpenAPI document and the HTML `<title>` of generated playgrounds.                                                 |
-| `version`        | `string` | `"1.0.0"`        | Sets `info.version` in the generated OpenAPI document.                                                                                               |
-| `description`    | `string` | `""`             | Sets `info.description` when provided.                                                                                                               |
-| `baseUrl`        | `string` | `""`             | Adds `servers` entries when provided. Use a comma-separated list to emit multiple server URLs.                                                       |
-| `contactName`    | `string` | `""`             | Sets `info.contact.name` when provided.                                                                                                              |
-| `contactEmail`   | `string` | `""`             | Sets `info.contact.email` when provided.                                                                                                             |
-| `licenseName`    | `string` | `""`             | Sets `info.license.name` when provided.                                                                                                              |
+| Option           | Type     | Default          | What it changes                                                                                                                                                                                                     |
+| ---------------- | -------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `outFile`        | `string` | `"openapi.yaml"` | Output filename inside `outDir`. Extension controls format: `.yaml`/`.yml` for YAML, `.json` for JSON. Set to `""` explicitly to skip schema generation entirely (only the playground is produced when configured). |
+| `playgroundFile` | `string` | `""`             | Generates an additional standalone HTML API docs file next to `outFile`. Must end in `.html`. If it is not present, the playground is not generated.                                                                |
+| `playgroundUi`   | `string` | `"swagger-ui"`   | Chooses which standalone docs UI to generate for `playgroundFile`: `swagger-ui`, `scalar`, or `stoplight-elements`.                                                                                                 |
+| `title`          | `string` | `"VDL RPC API"`  | Sets `info.title` in the generated OpenAPI document and the HTML `<title>` of generated playgrounds.                                                                                                                |
+| `version`        | `string` | `"1.0.0"`        | Sets `info.version` in the generated OpenAPI document.                                                                                                                                                              |
+| `description`    | `string` | `""`             | Sets `info.description` when provided.                                                                                                                                                                              |
+| `baseUrl`        | `string` | `""`             | Adds `servers` entries when provided. Use a comma-separated list to emit multiple server URLs.                                                                                                                      |
+| `contactName`    | `string` | `""`             | Sets `info.contact.name` when provided.                                                                                                                                                                             |
+| `contactEmail`   | `string` | `""`             | Sets `info.contact.email` when provided.                                                                                                                                                                            |
+| `licenseName`    | `string` | `""`             | Sets `info.license.name` when provided.                                                                                                                                                                             |
 
 Example with all options:
 
@@ -82,7 +82,7 @@ const config = {
   version 1
   plugins [
     {
-      src "varavelio/vdl-plugin-rpc-openapi@v0.1.2"
+      src "varavelio/vdl-plugin-rpc-openapi@v0.1.3"
       schema "./schema.vdl"
       outDir "./gen"
       options {
@@ -105,6 +105,7 @@ const config = {
 Notes:
 
 - `playgroundFile` only affects the extra HTML output. It never replaces the OpenAPI file from `outFile`.
+- Set `outFile` to `""` explicitly to skip generating the OpenAPI schema file. When combined with `playgroundFile`, only the HTML playground is produced. When set without a playground, no files are generated.
 - `playgroundUi` is only used when `playgroundFile` is present.
 - `baseUrl` accepts either one URL or multiple comma-separated URLs. Each URL becomes one OpenAPI `servers` entry.
 

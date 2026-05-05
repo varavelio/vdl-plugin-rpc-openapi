@@ -111,6 +111,29 @@ describe("resolveOpenApiOptions", () => {
     expect(options.version).toBe("1.0.0");
   });
 
+  it("produces no schema file when outFile is explicitly empty", () => {
+    const options = resolvePluginOptions({ outFile: "" });
+
+    expect(options.outFile).toBeUndefined();
+    expect(options).toMatchObject({
+      outFormat: "yaml",
+      playgroundFile: undefined,
+      playgroundUi: "swagger-ui",
+      title: "VDL RPC API",
+      version: "1.0.0",
+    });
+  });
+
+  it("allows playground-only output when outFile is empty", () => {
+    const options = resolvePluginOptions({
+      outFile: "",
+      playgroundFile: "playground.html",
+    });
+
+    expect(options.outFile).toBeUndefined();
+    expect(options.playgroundFile).toBe("playground.html");
+  });
+
   it("throws when outFile has an unsupported extension", () => {
     expect(() => {
       resolvePluginOptions({ outFile: "openapi.txt" });
