@@ -3184,8 +3184,9 @@ var DEFAULT_PLAYGROUND_UI = "swagger-ui";
 var DEFAULT_TITLE = "VDL RPC API";
 var DEFAULT_VERSION = "1.0.0";
 function resolvePluginOptions(options) {
-  const outFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
-  const outFormat = resolveOutFormat(outFile);
+  const rawOutFile = getOptionString(options, "outFile", DEFAULT_OUT_FILE);
+  const outFile = rawOutFile === "" ? void 0 : rawOutFile;
+  const outFormat = outFile ? resolveOutFormat(outFile) : "yaml";
   const playgroundFile = resolvePlaygroundFile(options);
   const playgroundUi = resolvePlaygroundUi(options);
   const title = requiredStrOption(options, "title", DEFAULT_TITLE);
@@ -3888,14 +3889,15 @@ function generateOpenApi(input) {
   assertValidIrForRpc(input.ir);
   const rpcGroups = extractRpcGroups(input.ir);
   const spec = buildOpenApiSpec(input.ir, rpcGroups, options);
-  const jsonSpec = stringifySpec(spec, "json");
-  const files = [
-    {
+  const files = [];
+  if (options.outFile) {
+    files.push({
       path: options.outFile,
       content: stringifySpec(spec, options.outFormat)
-    }
-  ];
+    });
+  }
   if (options.playgroundFile) {
+    const jsonSpec = stringifySpec(spec, "json");
     files.push({
       path: options.playgroundFile,
       content: renderPlaygroundHtml(options, jsonSpec)
